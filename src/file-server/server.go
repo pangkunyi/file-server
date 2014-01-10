@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-	log.Print("sdkfjsdlkfdsjlf")
 	go func() {
 		log.Println(http.ListenAndServe(config.DebugAddr, nil))
 	}()

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"logs"
 	"mime"
 	"mime/multipart"
@@ -30,7 +31,7 @@ func init() {
 			for k, v := range fileCaches {
 				if v.expireAt.Before(now) {
 					delete(fileCaches, k)
-					logs.MLog.Printf("clean file cache[%v] at %v\n", k, now)
+					log.Printf("clean file cache[%v] at %v\n", k, now)
 				}
 			}
 		}

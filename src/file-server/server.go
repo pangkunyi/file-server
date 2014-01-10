@@ -2,7 +2,7 @@ package main
 
 import (
 	"config"
-	"logs"
+	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"regexp"
@@ -10,14 +10,15 @@ import (
 )
 
 func main() {
+	log.Print("sdkfjsdlkfdsjlf")
 	go func() {
-		logs.MLog.Println(http.ListenAndServe(config.DebugAddr, nil))
+		log.Println(http.ListenAndServe(config.DebugAddr, nil))
 	}()
 	runtime.GOMAXPROCS(config.MaxProcs)
 	http.Handle("/public/silent_apk/", stripPrefix("/public/silent_apk/.*/apk/", FileServer(Dir(config.BaseDir))))
 	srv := &http.Server{Addr: config.ServerAddr, ReadTimeout: config.ReadTimeout, WriteTimeout: config.WriteTimeout}
 	if err := srv.ListenAndServe(); err != nil {
-		logs.MLog.Fatal(err)
+		log.Fatal(err)
 	}
 }
 

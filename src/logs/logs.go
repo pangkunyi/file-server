@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	MLog *log.Logger
 	ALog *log.Logger
 )
 
@@ -16,7 +15,7 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	MLog = log.New(mainLogFile, "", log.LstdFlags)
+	log.SetOutput(mainLogFile)
 	accessLogFile, err := os.OpenFile(config.AccessLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(err)

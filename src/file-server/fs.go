@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
+	"logs"
 	"mime"
 	"mime/multipart"
 	"net/http"
@@ -29,8 +29,8 @@ func init() {
 		for now := range time.Tick(time.Second) {
 			for k, v := range fileCaches {
 				if v.expireAt.Before(now) {
-					log.Printf("clean file cache[%v] at %v\n", k, now)
 					delete(fileCaches, k)
+					logs.MLog.Printf("clean file cache[%v] at %v\n", k, now)
 				}
 			}
 		}
@@ -66,8 +66,8 @@ func (d Dir) Open(name string) (*FileCache, error) {
 	}
 
 	fp := filepath.Join(dir, filepath.FromSlash(path.Clean("/"+name)))
-	fc := fileCaches[fp]
-	if fc == nil {
+	fc, ok := fileCaches[fp]
+	if !ok {
 		f, err := os.Open(fp)
 		if err != nil {
 			return nil, err
@@ -81,7 +81,7 @@ func (d Dir) Open(name string) (*FileCache, error) {
 			return nil, errors.New("no support list dir")
 		}
 		fc = &FileCache{}
-		fc.data, err = ioutil.ReadAll(f)
+		fc.data, err = ioutil.ReadFile(fp)
 		if err != nil {
 			return nil, err
 		}
@@ -386,7 +386,7 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if clen == "" {
 		clen = "0"
 	}
-	log.Printf(`%s "%s %s %s" %d %s "%s"`, r.RemoteAddr, r.Method, r.RequestURI, r.Proto, lrw.status, clen, r.Header.Get("User-Agent"))
+	logs.ALog.Printf(`%s "%s %s %s" %d %s "%s"`, r.RemoteAddr, r.Method, r.RequestURI, r.Proto, lrw.status, clen, r.Header.Get("User-Agent"))
 }
 
 // httpRange specifies the byte range to be sent to the client.

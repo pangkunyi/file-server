@@ -9,35 +9,37 @@ import (
 )
 
 var (
-	CFG_PATH           = os.Getenv("HOME") + "/.file-server/config.json"
-	BaseDir            string
-	CacheExpireMinutes int64
-	MaxProcs           int
-	ServerAddr         string
-	DebugAddr          string
-	ReadTimeout        time.Duration
-	WriteTimeout       time.Duration
-	MainLogFile        string
-	AccessLogFile      string
+	CFG_PATH = os.Getenv("HOME") + "/.file-server/config.json"
+	C        Config
 )
+
+type Config struct {
+	CacheExpireMinutes int64         `json:"cache_expire_minutes"`
+	MaxProcs           int           `json:"max_procs"`
+	ServerAddr         string        `json:"server_addr"`
+	DebugAddr          string        `json:"debug_addr"`
+	ReadTimeout        time.Duration `json:"read_timeout"`
+	WriteTimeout       time.Duration `json:"write_timeout"`
+	MainLogFile        string        `json:"main_log"`
+	AccessLogFile      string        `json:"access_log"`
+	Rules              []Rule        `json:"rules"`
+}
+
+type Rule struct {
+	Cached  bool   `json:"cached"`
+	Pattern string `json:"pattern"`
+	Strip   string `json:"strip"`
+	Dir     string `json:"dir"`
+}
 
 func init() {
 	if data, err := ioutil.ReadFile(CFG_PATH); err != nil {
 		log.Fatal(err)
 	} else {
-		var cfg map[string]interface{}
-		if err = json.Unmarshal(data, &cfg); err != nil {
+		if err = json.Unmarshal(data, &C); err != nil {
 			log.Fatal(err)
-		} else {
-			BaseDir = cfg["base_dir"].(string)
-			CacheExpireMinutes = int64(cfg["cache_expire_minutes"].(float64))
-			MaxProcs = int(cfg["max_procs"].(float64))
-			ServerAddr = cfg["server_addr"].(string)
-			DebugAddr = cfg["debug_addr"].(string)
-			ReadTimeout = time.Duration(cfg["read_timeout"].(float64)) * time.Second
-			WriteTimeout = time.Duration(cfg["write_timeout"].(float64)) * time.Second
-			MainLogFile = cfg["main_log"].(string)
-			AccessLogFile = cfg["access_log"].(string)
 		}
+		C.ReadTimeout = C.ReadTimeout * time.Second
+		C.WriteTimeout = C.WriteTimeout * time.Second
 	}
 }

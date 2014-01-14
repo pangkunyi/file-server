@@ -11,12 +11,12 @@ var (
 )
 
 func init() {
-	mainLogFile, err := os.OpenFile(config.MainLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	mainLogFile, err := os.OpenFile(config.C.MainLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.SetOutput(mainLogFile)
-	accessLogFile, err := os.OpenFile(config.AccessLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	accessLogFile, err := os.OpenFile(config.C.AccessLogFile, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}

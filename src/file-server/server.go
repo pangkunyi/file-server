@@ -11,11 +11,18 @@ import (
 
 func main() {
 	go func() {
-		log.Println(http.ListenAndServe(config.DebugAddr, nil))
+		log.Println(http.ListenAndServe(config.C.DebugAddr, nil))
 	}()
-	runtime.GOMAXPROCS(config.MaxProcs)
-	http.Handle("/public/silent_apk/", stripPrefix("/public/silent_apk/.*/apk/", FileServer(Dir(config.BaseDir))))
-	srv := &http.Server{Addr: config.ServerAddr, ReadTimeout: config.ReadTimeout, WriteTimeout: config.WriteTimeout}
+	runtime.GOMAXPROCS(config.C.MaxProcs)
+	for _, rule := range config.C.Rules {
+		if rule.Cached {
+			http.Handle(rule.Pattern, stripPrefix(rule.Strip, FileServer(Dir(rule.Dir))))
+		} else {
+			http.Handle(rule.Pattern, http.StripPrefix(rule.Strip, http.FileServer(http.Dir(rule.Dir))))
+		}
+	}
+
+	srv := &http.Server{Addr: config.C.ServerAddr, ReadTimeout: config.C.ReadTimeout, WriteTimeout: config.C.WriteTimeout}
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

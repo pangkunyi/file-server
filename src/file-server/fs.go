@@ -92,7 +92,7 @@ func (d Dir) Open(name string) (*FileCache, error) {
 		fileCaches[fp] = fc
 
 	}
-	fc.expireAt = time.Now().Add(time.Duration(config.CacheExpireMinutes) * time.Minute)
+	fc.expireAt = time.Now().Add(time.Duration(config.C.CacheExpireMinutes) * time.Minute)
 	return fc, nil
 }
 

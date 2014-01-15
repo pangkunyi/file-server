@@ -18,7 +18,7 @@ func main() {
 		if rule.Cached {
 			http.Handle(rule.Pattern, stripPrefix(rule.Strip, FileServer(Dir(rule.Dir))))
 		} else {
-			http.Handle(rule.Pattern, http.StripPrefix(rule.Strip, http.FileServer(http.Dir(rule.Dir))))
+			http.Handle(rule.Pattern, stripPrefix(rule.Strip, http.FileServer(http.Dir(rule.Dir))))
 		}
 	}
 

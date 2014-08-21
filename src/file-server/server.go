@@ -37,7 +37,7 @@ func stripPrefix(prefix string, h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if p := re.ReplaceAllString(r.URL.Path, ""); len(p) < len(r.URL.Path) {
 			r.URL.Path = p
-			w.Header().Set("filename", filepath.Base(p))
+			w.Header().Set("Content-Disposition", "attachment;filename="+filepath.Base(p))
 			h.ServeHTTP(w, r)
 		} else {
 			http.NotFound(w, r)

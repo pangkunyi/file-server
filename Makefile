@@ -1,4 +1,4 @@
-export GOPATH=$(shell pwd)
+export GOPATH:=$(shell pwd):$(GOPATH)
 gc=GODEBUG='gctrace=1'
 
 install:

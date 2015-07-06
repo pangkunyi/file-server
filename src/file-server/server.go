@@ -1,20 +1,30 @@
 package main
 
 import (
-	"config"
-	"log"
+	"github.com/pangkunyi/plum/logs"
 	"net/http"
 	_ "net/http/pprof"
 	"regexp"
 	"runtime"
 )
 
+var (
+	ALog *logs.Logger
+	MLog *logs.Logger
+)
+
+func init() {
+	MLog = logs.NewLogger(C.MainLogFile, false)
+	ALog = logs.NewLogger(C.AccessLogFile, true)
+	MLog.Printf("config:%#v\n", C)
+}
+
 func main() {
+	runtime.GOMAXPROCS(C.MaxProcs)
 	go func() {
-		log.Println(http.ListenAndServe(config.C.DebugAddr, nil))
+		MLog.Printf("server failed:%v\n", http.ListenAndServe(C.DebugAddr, nil))
 	}()
-	runtime.GOMAXPROCS(config.C.MaxProcs)
-	for _, rule := range config.C.Rules {
+	for _, rule := range C.Rules {
 		if rule.Cached {
 			http.Handle(rule.Pattern, stripPrefix(rule.Strip, FileServer(Dir(rule.Dir))))
 		} else {
@@ -22,10 +32,20 @@ func main() {
 		}
 	}
 
-	srv := &http.Server{Addr: config.C.ServerAddr, ReadTimeout: config.C.ReadTimeout, WriteTimeout: config.C.WriteTimeout}
-	if err := srv.ListenAndServe(); err != nil {
-		log.Fatal(err)
+	if len(C.ServerAddrs) < 1 {
+		MLog.Fatal("server addr not set!\n")
 	}
+	for i := 0; i < len(C.ServerAddrs)-1; i++ {
+		go func(idx int) {
+			startServer(C.ServerAddrs[idx])
+		}(i)
+	}
+	startServer(C.ServerAddrs[len(C.ServerAddrs)-1])
+}
+
+func startServer(serverAddr string) {
+	srv := &http.Server{Addr: serverAddr, ReadTimeout: C.ReadTimeout, WriteTimeout: C.WriteTimeout}
+	MLog.Printf("server failed:%v\n", srv.ListenAndServe())
 }
 
 func stripPrefix(prefix string, h http.Handler) http.Handler {

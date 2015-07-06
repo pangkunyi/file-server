@@ -1,22 +1,23 @@
-package config
+package main
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"time"
 )
 
 var (
-	CFG_PATH = os.Getenv("HOME") + "/.file-server/config.json"
+	CFG_PATH = "/etc/" + path.Base(os.Args[0]) + "/config.json"
 	C        Config
 )
 
 type Config struct {
 	CacheExpireTime time.Duration `json:"cache_expire_time"`
 	MaxProcs        int           `json:"max_procs"`
-	ServerAddr      string        `json:"server_addr"`
+	ServerAddrs     []string      `json:"server_addrs"`
 	DebugAddr       string        `json:"debug_addr"`
 	ReadTimeout     time.Duration `json:"read_timeout"`
 	WriteTimeout    time.Duration `json:"write_timeout"`

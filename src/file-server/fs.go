@@ -2,13 +2,10 @@ package main
 
 import (
 	"bytes"
-	"config"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
-	"logs"
 	"mime"
 	"mime/multipart"
 	"net/http"
@@ -31,7 +28,7 @@ func init() {
 			for k, v := range fileCaches {
 				if v.expireAt.Before(now) {
 					delete(fileCaches, k)
-					log.Printf("clean file cache[%v] at %v\n", k, now)
+					MLog.Printf("clean file cache[%v] at %v\n", k, now)
 				}
 			}
 		}
@@ -92,7 +89,7 @@ func (d Dir) Open(name string) (*FileCache, error) {
 		fileCaches[fp] = fc
 
 	}
-	fc.expireAt = time.Now().Add(config.C.CacheExpireTime)
+	fc.expireAt = time.Now().Add(C.CacheExpireTime)
 	return fc, nil
 }
 
@@ -387,7 +384,7 @@ func (f *fileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if clen == "" {
 		clen = "0"
 	}
-	logs.ALog.Printf(`%s "%s %s %s" %d %s "%s"`, r.RemoteAddr, r.Method, r.RequestURI, r.Proto, lrw.status, clen, r.Header.Get("User-Agent"))
+	ALog.Printf("%s \"%s %s %s\" %d %s \"%s\"\n", r.RemoteAddr, r.Method, r.RequestURI, r.Proto, lrw.status, clen, r.Header.Get("User-Agent"))
 }
 
 // httpRange specifies the byte range to be sent to the client.
